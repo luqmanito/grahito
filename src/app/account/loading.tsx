@@ -1,0 +1,2 @@
+import { Container } from "@/components/ui/container";
+export default function AccountLoading() { return <section className="bg-paper py-16"><Container className="max-w-5xl"><div className="h-24 animate-pulse rounded-3xl bg-white"/><div className="mt-8 h-12 w-1/2 animate-pulse rounded-2xl bg-white"/><div className="mt-8 grid gap-5 lg:grid-cols-2"><div className="h-80 animate-pulse rounded-3xl bg-white"/><div className="h-80 animate-pulse rounded-3xl bg-white"/></div></Container></section>; }
