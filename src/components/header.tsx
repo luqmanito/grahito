@@ -1,7 +1,6 @@
 import Link from "next/link";
+import { AuthNavigation } from "@/components/auth-navigation";
 import { BrandMark } from "@/components/brand-mark";
-import { MobileMenu } from "@/components/mobile-menu";
-import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 
 export function Header() {
@@ -14,8 +13,7 @@ export function Header() {
           <Link className="rounded-full px-4 py-2 text-sm font-medium text-muted hover:bg-white hover:text-ink" href="/#tentang">Tentang</Link>
           <Link className="rounded-full px-4 py-2 text-sm font-medium text-muted hover:bg-white hover:text-ink" href="/support">Bantuan</Link>
         </nav>
-        <div className="hidden items-center gap-2 md:flex"><ButtonLink href="/login" variant="ghost" size="sm">Masuk</ButtonLink><ButtonLink href="/register" size="sm">Buat Akun</ButtonLink></div>
-        <MobileMenu />
+        <AuthNavigation />
       </Container>
     </header>
   );
