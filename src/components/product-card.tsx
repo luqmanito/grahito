@@ -1,18 +1,22 @@
 import { AppWindow, ArrowUpRight } from "lucide-react";
+import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import type { Product } from "@/lib/products";
 
-export function ProductCard({ product, featured = false }: { product: Product; featured?: boolean }) {
+export function ProductCard({ product, featured = false, action }: { product: Product; featured?: boolean; action?: ReactNode }) {
   return (
     <article className={`overflow-hidden rounded-[2rem] border border-line bg-white ${featured ? "grid lg:grid-cols-[1.05fr_.95fr]" : ""}`}>
       <div className="p-7 sm:p-10 lg:p-12">
         <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em]">
           <span className="inline-flex items-center gap-2 text-muted"><AppWindow className="size-4" />{product.type}</span>
-          <span className="rounded-full bg-orange-soft px-3 py-1.5 text-orange-dark">{product.status}</span>
+          <span className={`rounded-full px-3 py-1.5 ${product.status === "Tersedia" ? "bg-lime-soft text-lime-dark" : "bg-orange-soft text-orange-dark"}`}>{product.status}</span>
         </div>
         <h3 className="mt-8 text-3xl font-semibold tracking-[-0.04em] text-ink sm:text-4xl">{product.name}</h3>
         <p className="mt-4 max-w-xl text-base leading-7 text-muted">{product.description}</p>
-        <ButtonLink href={product.href} variant="secondary" className="mt-8">Pelajari Lebih Lanjut <ArrowUpRight className="size-4" /></ButtonLink>
+        <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+          {action}
+          <ButtonLink href={product.href} variant="secondary">Pelajari Lebih Lanjut <ArrowUpRight className="size-4" /></ButtonLink>
+        </div>
       </div>
       {featured && <ProductPreview />}
     </article>

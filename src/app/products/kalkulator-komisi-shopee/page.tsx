@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { AlertTriangle, AppWindow, ArrowRight, CalendarRange, Check, CircleDollarSign, CloudOff, FileChartColumn, LockKeyhole, MousePointerClick, RefreshCw, ShoppingBag } from "lucide-react";
+import { ConnectProductCard } from "@/components/products/connect-product-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { FeatureCard } from "@/components/ui/feature-card";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { absoluteUrl, supportHref } from "@/lib/site";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Kalkulator Komisi Shopee", description: "Chrome Extension untuk membantu pengguna Shopee Affiliate menghitung dan melihat ringkasan komisi langsung dari browser.", alternates: { canonical: "/products/kalkulator-komisi-shopee" } };
 
@@ -19,15 +21,27 @@ const features = [
 
 const steps = ["Pasang ekstensi dari Chrome Web Store.", "Masuk ke akun Shopee Affiliate.", "Hubungkan sesi Shopee melalui tombol di ekstensi.", "Pilih tanggal laporan yang ingin dihitung.", "Ekstensi meminta laporan langsung dari Shopee dan menghitungnya di browser.", "Lihat hasil ringkasannya langsung di popup ekstensi."];
 
-export default function ProductPage() {
+export default async function ProductPage() {
   const storeUrl = process.env.NEXT_PUBLIC_CHROME_WEB_STORE_URL;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: product } = await supabase.from("products").select("id").eq("slug", "kalkulator-komisi-shopee").in("status", ["active", "beta"]).maybeSingle();
+  const { data: linkedProduct } = user && product
+    ? await supabase.from("user_products").select("id").eq("user_id", user.id).eq("product_id", product.id).maybeSingle()
+    : { data: null };
   const jsonLd = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "Kalkulator Komisi Shopee", applicationCategory: "BrowserApplication", operatingSystem: "Chrome", description: metadata.description, url: absoluteUrl("/products/kalkulator-komisi-shopee"), offers: { "@type": "Offer", price: "0", priceCurrency: "IDR" } };
   return (
     <>
       <section className="overflow-hidden border-b border-line bg-ink py-20 text-white sm:py-28">
         <Container className="grid items-center gap-14 lg:grid-cols-[1.05fr_.95fr]">
-          <div><div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/70"><AppWindow className="size-4" />Chrome Extension <span className="text-orange">• Segera tersedia</span></div><h1 className="mt-7 text-balance text-5xl font-semibold tracking-[-0.055em] sm:text-6xl">Kalkulator Komisi Shopee</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-white/65">Chrome Extension untuk membantu pengguna Shopee Affiliate menghitung dan melihat ringkasan komisi langsung dari browser.</p><div className="mt-9 flex flex-col gap-3 sm:flex-row">{storeUrl ? <ButtonLink href={storeUrl} variant="orange" size="lg" target="_blank" rel="noopener noreferrer">Tersedia di Chrome Web Store <ArrowRight className="size-4" /></ButtonLink> : <span className="inline-flex h-14 items-center justify-center rounded-full bg-orange px-6 font-semibold text-white" aria-disabled="true">Segera Hadir</span>}<ButtonLink href="/products/kalkulator-komisi-shopee/privacy" variant="ghost" size="lg" className="border border-white/15 text-white hover:bg-white/10 hover:text-white">Lihat Kebijakan Privasi</ButtonLink></div></div>
+          <div><div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/70"><AppWindow className="size-4" />Chrome Extension <span className="text-lime">• Tersedia</span></div><h1 className="mt-7 text-balance text-5xl font-semibold tracking-[-0.055em] sm:text-6xl">Kalkulator Komisi Shopee</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-white/65">Chrome Extension untuk membantu pengguna Shopee Affiliate menghitung dan melihat ringkasan komisi langsung dari browser.</p><div className="mt-9 flex flex-col gap-3 sm:flex-row">{storeUrl ? <ButtonLink href={storeUrl} variant="orange" size="lg" target="_blank" rel="noopener noreferrer">Tersedia di Chrome Web Store <ArrowRight className="size-4" /></ButtonLink> : <span className="inline-flex h-14 items-center justify-center rounded-full bg-orange px-6 font-semibold text-white" aria-disabled="true">Chrome Web Store belum tersedia</span>}<ButtonLink href="/products/kalkulator-komisi-shopee/privacy" variant="ghost" size="lg" className="border border-white/15 text-white hover:bg-white/10 hover:text-white">Lihat Kebijakan Privasi</ButtonLink></div></div>
           <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6"><div className="rounded-[1.4rem] bg-white p-6 text-ink"><div className="flex items-center justify-between"><div><p className="text-xs font-medium text-muted">Estimasi total komisi</p><p className="mt-2 text-3xl font-semibold">Rp —</p></div><div className="grid size-12 place-items-center rounded-2xl bg-orange-soft text-orange-dark"><FileChartColumn className="size-6" /></div></div><div className="mt-8 grid grid-cols-3 gap-3">{["Pesanan", "Produk", "Checkout"].map((item) => <div key={item} className="rounded-xl bg-paper p-3"><p className="text-[10px] text-muted">{item}</p><p className="mt-2 font-semibold">—</p></div>)}</div><div className="mt-5 flex items-center gap-2 rounded-xl border border-line p-3 text-xs text-muted"><span className="size-2 rounded-full bg-lime-dark" />Kalkulasi berjalan di browser</div></div></div>
+        </Container>
+      </section>
+
+      <section className="border-b border-line bg-paper py-8">
+        <Container>
+          <ConnectProductCard authenticated={Boolean(user)} available={Boolean(product)} connected={Boolean(linkedProduct)} />
         </Container>
       </section>
 

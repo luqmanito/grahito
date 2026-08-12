@@ -49,6 +49,8 @@ Jangan menambahkan service role key ke environment client atau variabel berawala
 
 Migration membuat `profiles`, `products`, dan `user_products`; mengaktifkan RLS; membatasi pengguna pada datanya sendiri; dan membuat profile otomatis setelah pendaftaran.
 
+Migration lanjutan `20260812000100_enable_kalkulator_product_linking.sql` memublikasikan Kalkulator Komisi Shopee sebagai produk beta dan memberi pengguna terautentikasi izin terbatas untuk menghubungkan produk tersebut hanya ke akunnya sendiri. Relasi tersimpan di `user_products` dan tidak memberikan akses terhadap sesi atau data Shopee.
+
 ## Arsitektur autentikasi
 
 - Browser client menangani submit login, registrasi, forgot password, dan update password.
