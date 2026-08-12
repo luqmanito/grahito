@@ -55,6 +55,8 @@ Contoh data aktivasi dari ekstensi:
 
 `SUPABASE_SECRET_KEY` wajib disimpan hanya di Vercel. API tidak akan aktif jika variabel tersebut belum dikonfigurasi. Extension ID dan callback authorization final tetap perlu ditentukan sebelum menerapkan `chrome.identity.launchWebAuthFlow`.
 
+Endpoint ekstensi tidak membutuhkan cookie sesi website. Request dari extension cukup mengirim JSON untuk aktivasi dan Bearer device token untuk validasi. Jika aktivasi gagal, respons menyertakan `code` dan `requestId`; gunakan `requestId` untuk mencari detail aman pada Vercel Function Logs tanpa mengekspos token pengguna.
+
 ## Menyiapkan Supabase
 
 1. Buat proyek Supabase.
