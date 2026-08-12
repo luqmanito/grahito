@@ -30,10 +30,30 @@ Buka `http://localhost:3000`.
 | `NEXT_PUBLIC_SITE_URL` | Ya di production | Origin website tanpa trailing slash. |
 | `NEXT_PUBLIC_SUPABASE_URL` | Ya | Project URL dari Supabase. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Ya | Publishable/anon key. Aman diekspos dengan RLS yang benar. |
+| `SUPABASE_SECRET_KEY` | Ya untuk API ekstensi | Secret key server-only untuk menukar kode aktivasi dan memvalidasi perangkat. Jangan gunakan prefix `NEXT_PUBLIC_`. |
 | `NEXT_PUBLIC_CHROME_WEB_STORE_URL` | Tidak | Biarkan kosong sampai listing ekstensi resmi tersedia. |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | Ya di production | Email dukungan publik. |
 
 Jangan menambahkan service role key ke environment client atau variabel berawalan `NEXT_PUBLIC_`.
+
+## Otorisasi ekstensi dan batas perangkat
+
+Pengguna harus login di website dan menghubungkan Kalkulator Komisi Shopee ke akun sebelum membuat kode aktivasi. Kode satu kali ditukar oleh ekstensi melalui `POST /api/extension/devices/exchange`. Setelah aktif, ekstensi memvalidasi tokennya melalui `POST /api/extension/devices/validate`.
+
+Chrome tidak menyediakan MAC address untuk extension biasa. Karena itu, setiap instalasi membuat UUID acak dan menyimpannya di `chrome.storage.local`. Database menegakkan maksimal dua UUID instalasi aktif untuk setiap kombinasi pengguna dan produk. Token perangkat harus ikut disimpan di `chrome.storage.local`, tidak di content script atau halaman Shopee.
+
+Contoh data aktivasi dari ekstensi:
+
+```json
+{
+  "activationCode": "KODE_DARI_DASHBOARD",
+  "installationId": "UUID_V4_DARI_EKSTENSI",
+  "deviceName": "Chrome di MacBook",
+  "platform": "macOS"
+}
+```
+
+`SUPABASE_SECRET_KEY` wajib disimpan hanya di Vercel. API tidak akan aktif jika variabel tersebut belum dikonfigurasi. Extension ID dan callback authorization final tetap perlu ditentukan sebelum menerapkan `chrome.identity.launchWebAuthFlow`.
 
 ## Menyiapkan Supabase
 
