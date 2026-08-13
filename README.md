@@ -43,6 +43,8 @@ Pengguna harus login di website dan menghubungkan Kalkulator Komisi Shopee ke ak
 
 Chrome tidak menyediakan MAC address untuk extension biasa. Karena itu, setiap instalasi membuat UUID acak dan menyimpannya di `chrome.storage.local`. Database menegakkan maksimal dua UUID instalasi aktif untuk setiap kombinasi pengguna dan produk. Token perangkat harus ikut disimpan di `chrome.storage.local`, tidak di content script atau halaman Shopee.
 
+Setiap aktivasi mencatat `activated_at`. Pengguna baru dapat mencabut perangkat setelah tujuh hari penuh sejak waktu tersebut. Aturan ini ditegakkan oleh function database `revoke_own_product_device`, sehingga manipulasi tombol atau waktu browser tidak dapat melewatinya. Otorisasi ulang instalasi yang sama memulai ulang masa tunggu tujuh hari.
+
 Contoh data aktivasi dari ekstensi:
 
 ```json

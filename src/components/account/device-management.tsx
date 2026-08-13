@@ -11,15 +11,24 @@ export type AccountDevice = {
   platform: string | null;
   last_seen_at: string | null;
   created_at: string;
+  activated_at: string;
 };
 
-export function DeviceManagement({ connected, devices }: { connected: boolean; devices: AccountDevice[] }) {
+const revocationCooldownMs = 7 * 24 * 60 * 60 * 1000;
+
+function revocationAvailableAt(activatedAt: string) {
+  return new Date(new Date(activatedAt).getTime() + revocationCooldownMs);
+}
+
+export function DeviceManagement({ connected, devices, currentTime }: { connected: boolean; devices: AccountDevice[]; currentTime: string }) {
+  const currentTimeMs = new Date(currentTime).getTime();
+
   return (
     <section className="mt-5 rounded-3xl border border-line bg-white p-6 sm:p-8">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex items-center gap-3"><ShieldCheck className="size-5 text-lime-dark" /><h2 className="text-lg font-semibold text-ink">Perangkat ekstensi</h2></div>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">Maksimal dua instalasi aktif. Identitas perangkat menggunakan ID instalasi acak, bukan MAC address.</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">Maksimal dua instalasi aktif. Perangkat baru dapat dicabut setelah aktif selama tujuh hari penuh.</p>
         </div>
         {connected ? (
           <span className="inline-flex h-10 items-center gap-2 rounded-full bg-lime-soft px-4 text-xs font-semibold text-lime-dark"><Link2 className="size-4" />Otorisasi otomatis aktif</span>
@@ -34,12 +43,17 @@ export function DeviceManagement({ connected, devices }: { connected: boolean; d
       <div className="mt-6 space-y-3">
         {devices.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-line bg-paper/50 px-5 py-8 text-center text-sm text-muted">Belum ada perangkat ekstensi yang aktif.</div>
-        ) : devices.map((device) => (
-          <div key={device.id} className="flex flex-col gap-4 rounded-2xl border border-line p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4"><div className="grid size-10 place-items-center rounded-xl bg-paper text-muted">{device.platform?.toLowerCase().includes("mobile") ? <Smartphone className="size-4" /> : <Laptop className="size-4" />}</div><div><p className="text-sm font-semibold text-ink">{device.device_name}</p><p className="mt-1 text-xs text-muted">{device.platform || "Platform tidak diketahui"} · {device.last_seen_at ? `Aktif ${new Date(device.last_seen_at).toLocaleDateString("id-ID")}` : "Belum pernah divalidasi"}</p></div></div>
-            <form action={revokeProductDevice.bind(null, device.id)}><Button type="submit" variant="danger" size="sm"><X className="size-4" />Cabut</Button></form>
-          </div>
-        ))}
+        ) : devices.map((device) => {
+          const availableAt = revocationAvailableAt(device.activated_at);
+          const canRevoke = availableAt.getTime() <= currentTimeMs;
+
+          return (
+            <div key={device.id} className="flex flex-col gap-4 rounded-2xl border border-line p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4"><div className="grid size-10 place-items-center rounded-xl bg-paper text-muted">{device.platform?.toLowerCase().includes("mobile") ? <Smartphone className="size-4" /> : <Laptop className="size-4" />}</div><div><p className="text-sm font-semibold text-ink">{device.device_name}</p><p className="mt-1 text-xs text-muted">{device.platform || "Platform tidak diketahui"} · {device.last_seen_at ? `Aktif ${new Date(device.last_seen_at).toLocaleDateString("id-ID")}` : "Belum pernah divalidasi"}</p>{!canRevoke && <p className="mt-1 text-xs font-medium text-orange-dark">Dapat dicabut mulai {availableAt.toLocaleString("id-ID", { dateStyle: "long", timeStyle: "short" })}</p>}</div></div>
+              <form action={revokeProductDevice.bind(null, device.id)}><Button type="submit" variant="danger" size="sm" disabled={!canRevoke} title={canRevoke ? "Cabut perangkat" : `Dapat dicabut mulai ${availableAt.toLocaleString("id-ID")}`}><X className="size-4" />{canRevoke ? "Cabut" : "Belum dapat dicabut"}</Button></form>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
