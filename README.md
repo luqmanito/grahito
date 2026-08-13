@@ -31,6 +31,7 @@ Buka `http://localhost:3000`.
 | `NEXT_PUBLIC_SUPABASE_URL` | Ya | Project URL dari Supabase. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Ya | Publishable/anon key. Aman diekspos dengan RLS yang benar. |
 | `SUPABASE_SECRET_KEY` | Ya untuk API ekstensi | Secret key server-only untuk menukar kode aktivasi dan memvalidasi perangkat. Jangan gunakan prefix `NEXT_PUBLIC_`. |
+| `CHROME_EXTENSION_ID` | Ya untuk web authorization | Extension ID resmi 32 karakter. Dipakai untuk mengunci callback `chromiumapp.org`. |
 | `NEXT_PUBLIC_CHROME_WEB_STORE_URL` | Tidak | Biarkan kosong sampai listing ekstensi resmi tersedia. |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | Ya di production | Email dukungan publik. |
 
@@ -54,6 +55,8 @@ Contoh data aktivasi dari ekstensi:
 ```
 
 `SUPABASE_SECRET_KEY` wajib disimpan hanya di Vercel. API tidak akan aktif jika variabel tersebut belum dikonfigurasi. Extension ID dan callback authorization final tetap perlu ditentukan sebelum menerapkan `chrome.identity.launchWebAuthFlow`.
+
+Web authorization otomatis tersedia melalui `GET /extension/authorize`. Contoh implementasi lengkap ekstensi tersedia di [docs/extension-web-authorization.md](./docs/extension-web-authorization.md). Kode manual dari dashboard tetap tersedia sebagai fallback operasional.
 
 Endpoint ekstensi tidak membutuhkan cookie sesi website. Request dari extension cukup mengirim JSON untuk aktivasi dan Bearer device token untuk validasi. Jika aktivasi gagal, respons menyertakan `code` dan `requestId`; gunakan `requestId` untuk mencari detail aman pada Vercel Function Logs tanpa mengekspos token pengguna.
 
