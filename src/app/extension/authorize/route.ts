@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createOpaqueToken, hashOpaqueToken } from "@/lib/extension-auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 const querySchema = z.object({
@@ -82,7 +83,8 @@ export async function GET(request: Request) {
   }
 
   const activationCode = createOpaqueToken(24);
-  const { error: codeError } = await supabase.from("product_device_activation_codes").insert({
+  const admin = createAdminClient();
+  const { error: codeError } = await admin.from("product_device_activation_codes").insert({
     user_id: user.id,
     product_id: product.id,
     code_hash: hashOpaqueToken(activationCode),

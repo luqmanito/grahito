@@ -39,7 +39,7 @@ Jangan menambahkan service role key ke environment client atau variabel berawala
 
 ## Otorisasi ekstensi dan batas perangkat
 
-Pengguna harus login di website dan menghubungkan Kalkulator Komisi Shopee ke akun sebelum membuat kode aktivasi. Kode satu kali ditukar oleh ekstensi melalui `POST /api/extension/devices/exchange`. Setelah aktif, ekstensi memvalidasi tokennya melalui `POST /api/extension/devices/validate`.
+Pengguna harus login di website dan menghubungkan Kalkulator Komisi Shopee ke akun. Ekstensi memulai web authorization melalui `GET /extension/authorize`; backend menerbitkan kode satu kali secara internal dan ekstensi langsung menukarnya melalui `POST /api/extension/devices/exchange`. Setelah aktif, ekstensi memvalidasi tokennya melalui `POST /api/extension/devices/validate`.
 
 Chrome tidak menyediakan MAC address untuk extension biasa. Karena itu, setiap instalasi membuat UUID acak dan menyimpannya di `chrome.storage.local`. Database menegakkan maksimal dua UUID instalasi aktif untuk setiap kombinasi pengguna dan produk. Token perangkat harus ikut disimpan di `chrome.storage.local`, tidak di content script atau halaman Shopee.
 
@@ -56,7 +56,7 @@ Contoh data aktivasi dari ekstensi:
 
 `SUPABASE_SECRET_KEY` wajib disimpan hanya di Vercel. API tidak akan aktif jika variabel tersebut belum dikonfigurasi. Extension ID dan callback authorization final tetap perlu ditentukan sebelum menerapkan `chrome.identity.launchWebAuthFlow`.
 
-Web authorization otomatis tersedia melalui `GET /extension/authorize`. Contoh implementasi lengkap ekstensi tersedia di [docs/extension-web-authorization.md](./docs/extension-web-authorization.md). Kode manual dari dashboard tetap tersedia sebagai fallback operasional.
+Web authorization otomatis tersedia melalui `GET /extension/authorize`. Contoh implementasi lengkap ekstensi tersedia di [docs/extension-web-authorization.md](./docs/extension-web-authorization.md). Dashboard tidak menyediakan pembuatan kode manual.
 
 Endpoint ekstensi tidak membutuhkan cookie sesi website. Request dari extension cukup mengirim JSON untuk aktivasi dan Bearer device token untuk validasi. Jika aktivasi gagal, respons menyertakan `code` dan `requestId`; gunakan `requestId` untuk mencari detail aman pada Vercel Function Logs tanpa mengekspos token pengguna.
 

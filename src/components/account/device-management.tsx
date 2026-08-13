@@ -1,8 +1,7 @@
 "use client";
 
-import { Check, Copy, Laptop, Plus, ShieldCheck, Smartphone, X } from "lucide-react";
-import { useActionState, useState } from "react";
-import { createDeviceActivationCode, revokeProductDevice, type ActivationCodeState } from "@/app/account/actions";
+import { Laptop, Link2, ShieldCheck, Smartphone, X } from "lucide-react";
+import { revokeProductDevice } from "@/app/account/actions";
 import { Alert } from "@/components/ui/alert";
 import { Button, ButtonLink } from "@/components/ui/button";
 
@@ -14,19 +13,7 @@ export type AccountDevice = {
   created_at: string;
 };
 
-const initialState: ActivationCodeState = {};
-
 export function DeviceManagement({ connected, devices }: { connected: boolean; devices: AccountDevice[] }) {
-  const [state, action, pending] = useActionState(createDeviceActivationCode, initialState);
-  const [copied, setCopied] = useState(false);
-
-  async function copyCode() {
-    if (!state.code) return;
-    await navigator.clipboard.writeText(state.code);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2000);
-  }
-
   return (
     <section className="mt-5 rounded-3xl border border-line bg-white p-6 sm:p-8">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -35,21 +22,14 @@ export function DeviceManagement({ connected, devices }: { connected: boolean; d
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">Maksimal dua instalasi aktif. Identitas perangkat menggunakan ID instalasi acak, bukan MAC address.</p>
         </div>
         {connected ? (
-          <form action={action}><Button type="submit" variant="secondary" size="sm" disabled={pending || devices.length >= 2}><Plus className="size-4" />{pending ? "Membuat…" : "Buat Kode Aktivasi"}</Button></form>
+          <span className="inline-flex h-10 items-center gap-2 rounded-full bg-lime-soft px-4 text-xs font-semibold text-lime-dark"><Link2 className="size-4" />Otorisasi otomatis aktif</span>
         ) : (
           <ButtonLink href="/products/kalkulator-komisi-shopee" size="sm">Hubungkan Produk</ButtonLink>
         )}
       </div>
 
       {devices.length >= 2 && <div className="mt-5"><Alert tone="info">Dua perangkat sudah aktif. Cabut salah satu perangkat sebelum mengaktifkan instalasi baru.</Alert></div>}
-      {state.message && <div className="mt-5"><Alert tone={state.tone}>{state.message}</Alert></div>}
-      {state.code && (
-        <div className="mt-5 rounded-2xl border border-lime-dark/20 bg-lime-soft p-5">
-          <p className="text-xs font-bold uppercase tracking-wider text-lime-dark">Kode aktivasi satu kali</p>
-          <div className="mt-3 flex flex-col gap-3 sm:flex-row"><code className="min-w-0 flex-1 break-all rounded-xl bg-white px-4 py-3 text-sm text-ink">{state.code}</code><Button type="button" variant="secondary" onClick={copyCode}>{copied ? <Check className="size-4" /> : <Copy className="size-4" />}{copied ? "Tersalin" : "Salin"}</Button></div>
-          <p className="mt-3 text-xs leading-5 text-muted">Masukkan kode ini di ekstensi pada perangkat yang ingin diaktifkan. Jangan membagikannya kepada orang lain.</p>
-        </div>
-      )}
+      {connected && devices.length < 2 && <div className="mt-5"><Alert tone="info">Buka ekstensi lalu pilih “Hubungkan Akun”. Website akan menyelesaikan otorisasi secara otomatis.</Alert></div>}
 
       <div className="mt-6 space-y-3">
         {devices.length === 0 ? (
