@@ -1,20 +1,23 @@
+import type { Locale } from "@/lib/i18n/config";
+import { dictionaries } from "@/lib/i18n/dictionaries";
+
 export type Product = {
   slug: string;
   name: string;
   type: string;
-  status: "Tersedia" | "Beta" | "Segera tersedia";
+  status: "available" | "beta" | "comingSoon";
   description: string;
   href: string;
 };
 
-export const products: Product[] = [
-  {
+export function getProducts(locale: Locale): Product[] {
+  const dictionary = dictionaries[locale];
+  return [{
     slug: "kalkulator-komisi-shopee",
     name: "Kalkulator Komisi Shopee",
     type: "Chrome Extension",
-    status: "Tersedia",
-    description:
-      "Lihat dan hitung laporan komisi Shopee Affiliate langsung dari browser tanpa menyalin data secara manual.",
+    status: "available",
+    description: dictionary.product.description,
     href: "/products/kalkulator-komisi-shopee",
-  },
-];
+  }];
+}

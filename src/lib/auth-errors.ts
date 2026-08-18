@@ -1,9 +1,13 @@
-export function authErrorMessage(message: string) {
+import type { Locale } from "@/lib/i18n/config";
+import { dictionaries } from "@/lib/i18n/dictionaries";
+
+export function authErrorMessage(message: string, locale: Locale = "id") {
+  const dictionary = dictionaries[locale].auth;
   const normalized = message.toLowerCase();
-  if (normalized.includes("invalid login credentials")) return "Email atau password tidak cocok.";
-  if (normalized.includes("email not confirmed")) return "Email belum diverifikasi. Periksa kotak masukmu.";
-  if (normalized.includes("user already registered")) return "Email ini sudah terdaftar. Silakan masuk.";
-  if (normalized.includes("password should be")) return "Password belum memenuhi ketentuan minimum.";
-  if (normalized.includes("rate limit")) return "Terlalu banyak percobaan. Coba lagi beberapa saat.";
-  return "Terjadi kendala. Silakan coba lagi.";
+  if (normalized.includes("invalid login credentials")) return dictionary.invalidCredentials;
+  if (normalized.includes("email not confirmed")) return dictionary.emailNotConfirmed;
+  if (normalized.includes("user already registered")) return dictionary.alreadyRegistered;
+  if (normalized.includes("password should be")) return dictionary.weakPassword;
+  if (normalized.includes("rate limit")) return dictionary.rateLimit;
+  return dictionary.genericError;
 }

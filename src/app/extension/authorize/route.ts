@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createOpaqueToken, hashOpaqueToken } from "@/lib/extension-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { getDictionary } from "@/lib/i18n/server";
 
 const querySchema = z.object({
   redirect_uri: z.string().url(),
@@ -31,13 +32,14 @@ function redirectWithResult(
 }
 
 export async function GET(request: Request) {
+  const dictionary = await getDictionary();
   const requestUrl = new URL(request.url);
   const parsed = querySchema.safeParse(Object.fromEntries(requestUrl.searchParams));
   const allowedCallback = extensionCallbackUrl();
 
   if (!parsed.success || !allowedCallback || parsed.data.redirect_uri !== allowedCallback) {
     return NextResponse.json(
-      { error: "Permintaan otorisasi ekstensi tidak valid." },
+      { error: dictionary.connectCard.error },
       { status: 400, headers: { "Cache-Control": "no-store" } },
     );
   }
@@ -63,7 +65,7 @@ export async function GET(request: Request) {
   if (!product) {
     return redirectWithResult(redirectUri, state, {
       error: "product_unavailable",
-      errorDescription: "Produk belum tersedia.",
+      errorDescription: dictionary.connectCard.unavailableMessage,
     });
   }
 
@@ -78,7 +80,7 @@ export async function GET(request: Request) {
   if (!connection) {
     return redirectWithResult(redirectUri, state, {
       error: "product_not_connected",
-      errorDescription: "Kalkulator Komisi Shopee belum terhubung ke akun ini.",
+      errorDescription: dictionary.connectCard.unavailableMessage,
     });
   }
 
@@ -99,7 +101,7 @@ export async function GET(request: Request) {
     });
     return redirectWithResult(redirectUri, state, {
       error: "authorization_failed",
-      errorDescription: "Otorisasi ekstensi belum dapat diselesaikan.",
+      errorDescription: dictionary.connectCard.error,
     });
   }
 

@@ -23,6 +23,10 @@ npm run dev
 
 Buka `http://localhost:3000`.
 
+## Bahasa
+
+Website tersedia dalam Bahasa Indonesia dan Inggris. Pengunjung dapat memilih `ID` atau `EN` dari header. Pilihan disimpan dalam cookie server-only `grahito_locale` selama satu tahun agar locale sudah benar saat SSR; kunjungan pertama menggunakan `Accept-Language` browser dan kembali ke Bahasa Indonesia jika tidak cocok. Metadata, formulir dan validasinya, dashboard, katalog, halaman produk, dukungan, serta dokumen legal mengikuti locale yang sama.
+
 ## Environment variables
 
 | Nama | Wajib | Keterangan |

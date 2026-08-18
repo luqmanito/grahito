@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ConnectProductState } from "@/components/products/types";
+import { getDictionary } from "@/lib/i18n/server";
 
 const productSlug = "kalkulator-komisi-shopee";
 
@@ -10,12 +11,13 @@ export async function connectKalkulatorProduct(
   previousState: ConnectProductState,
 ): Promise<ConnectProductState> {
   if (previousState.connected) return previousState;
+  const dictionary = await getDictionary();
 
   const supabase = await createClient();
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return { connected: false, tone: "error", message: "Sesi berakhir. Silakan masuk kembali." };
+    return { connected: false, tone: "error", message: dictionary.connectCard.sessionExpired };
   }
 
   const { data: product, error: productError } = await supabase
@@ -26,7 +28,7 @@ export async function connectKalkulatorProduct(
     .maybeSingle();
 
   if (productError || !product) {
-    return { connected: false, tone: "error", message: "Produk belum tersedia untuk dihubungkan." };
+    return { connected: false, tone: "error", message: dictionary.connectCard.unavailableMessage };
   }
 
   const { error } = await supabase.from("user_products").insert({
@@ -37,7 +39,7 @@ export async function connectKalkulatorProduct(
   });
 
   if (error && error.code !== "23505") {
-    return { connected: false, tone: "error", message: "Produk belum dapat dihubungkan. Silakan coba lagi." };
+    return { connected: false, tone: "error", message: dictionary.connectCard.error };
   }
 
   revalidatePath("/account");
@@ -47,6 +49,6 @@ export async function connectKalkulatorProduct(
   return {
     connected: true,
     tone: "success",
-    message: error?.code === "23505" ? "Produk ini sudah terhubung ke akunmu." : "Produk berhasil dihubungkan ke akunmu.",
+    message: error?.code === "23505" ? dictionary.connectCard.alreadyConnected : dictionary.connectCard.connectedMessage,
   };
 }

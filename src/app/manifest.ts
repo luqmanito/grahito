@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
 
-export default function manifest(): MetadataRoute.Manifest {
-  return { name: "Grahito Labs", short_name: "Grahito", description: "Tools digital sederhana untuk pekerjaan yang lebih mudah.", start_url: "/", display: "standalone", background_color: "#fbfbf7", theme_color: "#191914", lang: "id", icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }] };
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const [locale, dictionary] = await Promise.all([getLocale(), getDictionary()]);
+  return { name: "Grahito Labs", short_name: "Grahito", description: dictionary.home.title, start_url: "/", display: "standalone", background_color: "#fbfbf7", theme_color: "#191914", lang: locale, icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }] };
 }
